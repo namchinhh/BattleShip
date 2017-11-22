@@ -18,8 +18,11 @@ public class Player implements Serializable{
     private int win;
     private int game;
     
-    public Player(){
-        
+    public Player(){}
+    
+    public Player(String name,String password){
+        this.name = name;
+        this.password=password;
     }
     
     public Player(int id,String password, String name,int win,int game){
