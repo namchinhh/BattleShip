@@ -26,26 +26,27 @@ public class ClientView {
     protected void startGame() {
         //chon dang nhap hoac dang ki
         try {
-            int choose1;
+            String choose1;
             while (true) {
                 System.out.println("1. LOGIN");
-            System.out.println("2. SIGN UP");
-            System.out.println("Choose:");
-             choose1 =Integer.parseInt( inFromUser.readLine());
-                if (choose1 == 1 || choose1 == 2) {
+                System.out.println("2. SIGN UP");
+                System.out.println("Choose:");
+                choose1 = inFromUser.readLine();
+                if (choose1.equals("1") || choose1.equals("2")) {
                     break;
                 }
                 System.out.println("Wrong choose!");
             }
             // sent choose to server
-//            controller.sendToServer(choose1);
-//            if (choose1 == "1") {
-//                login();
-//            } else {
-//                signUp();
-//            }
+            controller.sendToServer(choose1);
+            if (choose1.equals("1")) {
+                login();
+            } else {
+                signUp();
+            }
             showMenu();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -64,6 +65,7 @@ public class ClientView {
             }
             System.out.println("Wrong Username or Password!");
         }
+        System.out.println("Wellcome back !");
         p.setName(username);
         p.setPassword(password);
     }
@@ -82,6 +84,7 @@ public class ClientView {
             }
             System.out.println("Username existed!");
         }
+        System.out.println("Register success.");
         p.setName(username);
         p.setPassword(password);
     }
@@ -121,16 +124,16 @@ public class ClientView {
 
         gameBoard.printBoard();
         System.out.println("Wait P1...");
-            controller.sendToServer("ready");
-            while (true) {
-                String state = controller.receiveFromServer();
-                if (state == "ready") {
-                    break;
-                }
+        controller.sendToServer("ready");
+        while (true) {
+            String state = controller.receiveFromServer();
+            if (state == "ready") {
+                break;
             }
-            
+        }
+
         //start game
-        controller.play(p,gameBoard);
+        controller.play(p, gameBoard);
     }
 
     protected void showInfo() throws IOException {
@@ -138,6 +141,11 @@ public class ClientView {
         String id = inFromUser.readLine();
         controller.sendToServer(id);
         Player p2 = controller.receivePlayerFromServer();
+        if(p2 == null){
+            System.out.println("Player is not exist.");
+            return;
+        }
+            
         System.out.println("=====================================");
         System.out.println("Player " + id);
         System.out.println("Name : " + p2.getName());
@@ -155,7 +163,13 @@ public class ClientView {
 
             //menu
             while (true) {
-                int choose2 = 0;
+                System.out.println("===========Menu===========");
+                System.out.println("1. Play");
+                System.out.println("2. Search Player Info by Id");
+                System.out.println("3. Logout");
+                System.out.println("Please Choose:");
+                int choose2;
+                choose2 =Integer.parseInt(inFromUser.readLine());
                 switch (choose2) {
                     case 1:
                         //choi
@@ -178,6 +192,7 @@ public class ClientView {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

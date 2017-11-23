@@ -10,7 +10,7 @@ package battleship;
  * @author namch
  */
 public class ClientMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) {            
         ClientView view = new ClientView();
         view.startGame();
     }

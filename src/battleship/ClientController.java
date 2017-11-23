@@ -18,6 +18,8 @@ public class ClientController {
     private int serverPort = 1995;
     private DataInputStream inFromServer;
     private DataOutputStream outToServer;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
     private BufferedReader inFromUser = new BufferedReader(
             new InputStreamReader(System.in));
 
@@ -30,7 +32,10 @@ public class ClientController {
             //out to server the hit or miss message
             outToServer = new DataOutputStream(
                     clientSocket.getOutputStream());
+             ois = new ObjectInputStream(clientSocket.getInputStream());
+             oos = new ObjectOutputStream(clientSocket.getOutputStream());
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -45,15 +50,16 @@ public class ClientController {
 
     public Player receivePlayerFromServer() {
         try {
-            ObjectInputStream ois = new ObjectInputStream(inFromServer);
+            
             return (Player) ois.readObject();
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     public boolean sendToServer(Player p) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(outToServer);
+        
         oos.writeObject(p);
         return inFromServer.readBoolean();
     }

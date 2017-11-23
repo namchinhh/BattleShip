@@ -18,8 +18,10 @@ public class ServerController {
     private String serverSentence;
     private ServerSocket welcomeSocket;
     private Socket serverSocket;
-    private DataInputStream inFromClient;
-    private DataOutputStream outToClient1;
+    private DataInputStream inFromClient =null;
+    private DataOutputStream outToClient1 = null;
+    private ObjectInputStream ois =null;
+    private ObjectOutputStream oos =null;
 private Connection con;
     //from command line
     private BufferedReader inFromUser = new BufferedReader(
@@ -38,6 +40,7 @@ private Connection con;
                 listenning();
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 private void getDBConnection(String dbName, String username,
@@ -50,7 +53,7 @@ private void getDBConnection(String dbName, String username,
             con = DriverManager.getConnection(dbUrl,
                     username, password);
         } catch (Exception e) {
-
+e.printStackTrace();
         }
     }
     public Player getPlayerInfo(String id) {
@@ -63,11 +66,13 @@ private void getDBConnection(String dbName, String username,
             p.setGame(rs.getInt(4));
             p.setWin(rs.getInt(5));
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return p;
     }
 
     public boolean checkLogin(Player p) {
+        System.out.println("login");
             String query = "SELECT name, win, game FROM Player WHERE name='" + p.getName() + "' AND password='"+p.getPassword()+"'";
         try {
               stmt = con.createStatement();
@@ -75,6 +80,7 @@ private void getDBConnection(String dbName, String username,
             if(!rs.wasNull())
                 return true;
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -86,7 +92,11 @@ private void getDBConnection(String dbName, String username,
             ResultSet rs = stmt.executeQuery(query);
             if(rs.wasNull())
                 return true;
-        } catch (Exception e) {
+        }catch(NullPointerException nullPoint){
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -218,6 +228,7 @@ private void getDBConnection(String dbName, String username,
             saveToDataBase(p2.getName(), p2.getWin());
             System.out.println("Save.");
         } catch (Exception e) {
+            e.printStackTrace();
         }
         
         
@@ -225,18 +236,23 @@ private void getDBConnection(String dbName, String username,
     public void listenning() {
         try {
             serverSocket = welcomeSocket.accept();
+            System.out.println("P2 is connecting..");
             Player p2;
             inFromClient = new DataInputStream(
                     serverSocket.getInputStream());
             outToClient1 = new DataOutputStream(
                     serverSocket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(serverSocket.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(serverSocket.getOutputStream());
-            // get choose1
             String choose1 = inFromClient.readUTF();
+
+            ois = new ObjectInputStream(serverSocket.getInputStream());
+
+            oos = new ObjectOutputStream(serverSocket.getOutputStream());
+            System.out.println(123);
+
+            // get choose1
             while (true) {
                 p2 = (Player) ois.readObject();
-                if (choose1 == "1") {
+                if (choose1.equals("1")) {
                     if (checkLogin(p2)) {
                         break;
                     }
@@ -245,10 +261,12 @@ private void getDBConnection(String dbName, String username,
                         break;
                     }
                 }
+                String line1 = inFromUser.readLine();
                 outToClient1.writeBoolean(false);
             }
             outToClient1.writeBoolean(true);  //login success
             //get choose2
+
             String choose2 = inFromClient.readUTF();
             switch(choose2){
                 case "1":
@@ -266,6 +284,7 @@ private void getDBConnection(String dbName, String username,
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
